@@ -4,20 +4,6 @@ import os
 import uuid
 import json
 
-# ---------------- PWA SETUP ----------------
-st.markdown("""
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#4ecdc4">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Video Downloader">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js');
-  }
-</script>
-""", unsafe_allow_html=True)
-
 # ---------------- CONFIG ----------------
 st.set_page_config(
     page_title="Universal Video Downloader",
@@ -709,14 +695,22 @@ if download_btn:
             # Get video info first with retry mechanism
             ydl_info_opts = {
                 "quiet": True,
-                "socket_timeout": 30,
-                "retries": 3,
-                "fragment_retries": 3,
-                "extractor_retries": 3,
-                "http_chunk_size": 10485760,
+                "socket_timeout": 60,
+                "retries": 10,
+                "fragment_retries": 10,
+                "extractor_retries": 5,
+                "http_chunk_size": 1048576,
                 "prefer_insecure": False,
+                "no_check_certificate": True,
+                "geo_bypass": True,
                 "http_headers": {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'en-us,en;q=0.5',
+                    'Accept-Encoding': 'gzip,deflate',
+                    'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+                    'Keep-Alive': '300',
+                    'Connection': 'keep-alive'
                 }
             }
             with yt_dlp.YoutubeDL(ydl_info_opts) as ydl:
@@ -741,15 +735,23 @@ if download_btn:
                     "no_warnings": True,
                     "writesubtitles": False,
                     "writeautomaticsub": False,
-                    "socket_timeout": 30,
-                    "retries": 5,
-                    "fragment_retries": 5,
-                    "extractor_retries": 3,
-                    "http_chunk_size": 10485760,
+                    "socket_timeout": 60,
+                    "retries": 15,
+                    "fragment_retries": 15,
+                    "extractor_retries": 5,
+                    "http_chunk_size": 1048576,
                     "prefer_insecure": False,
                     "geo_bypass": True,
+                    "no_check_certificate": True,
+                    "continuedl": True,
                     "http_headers": {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language': 'en-us,en;q=0.5',
+                        'Accept-Encoding': 'gzip,deflate',
+                        'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+                        'Keep-Alive': '300',
+                        'Connection': 'keep-alive'
                     }
                 }
                 ext = ".mp4"
@@ -761,15 +763,23 @@ if download_btn:
                     "progress_hooks": [progress_hook],
                     "quiet": True,
                     "no_warnings": True,
-                    "socket_timeout": 30,
-                    "retries": 5,
-                    "fragment_retries": 5,
-                    "extractor_retries": 3,
-                    "http_chunk_size": 10485760,
+                    "socket_timeout": 60,
+                    "retries": 15,
+                    "fragment_retries": 15,
+                    "extractor_retries": 5,
+                    "http_chunk_size": 1048576,
                     "prefer_insecure": False,
                     "geo_bypass": True,
+                    "no_check_certificate": True,
+                    "continuedl": True,
                     "http_headers": {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language': 'en-us,en;q=0.5',
+                        'Accept-Encoding': 'gzip,deflate',
+                        'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+                        'Keep-Alive': '300',
+                        'Connection': 'keep-alive'
                     }
                 }
                 ext = ".m4a"

@@ -459,6 +459,20 @@ if st.sidebar.button("🗑️ Clear History"):
     st.sidebar.success("History cleared!")
     st.rerun()
 
+# ---------------- CLOUD NOTICE ----------------
+st.sidebar.markdown("""
+---
+### 📝 **Note for Cloud Users**
+If you encounter access issues, this app works better when run locally due to datacenter IP restrictions.
+
+**Run Locally:**
+```bash
+pip install streamlit yt-dlp
+streamlit run app.py
+```
+---
+""")
+
 # ---------------- MAIN UI ----------------
 st.markdown("""
 <div style="text-align: center; margin-bottom: 1rem;">
@@ -851,17 +865,28 @@ if download_btn:
                 st.error("❌ File missing after download")
 
         except Exception as e:
-            error_msg = str(e)
-            if "getaddrinfo failed" in error_msg or "Failed to resolve" in error_msg:
+            error_msg = str(e).lower()
+            
+            # Handle Streamlit Cloud IP blocking specifically
+            if ("http error 403" in error_msg or "access denied" in error_msg or 
+                "forbidden" in error_msg or "blocked" in error_msg):
+                st.error("🚫 **Streamlit Cloud IP Blocked**")
+                st.warning("📝 **Solution**: This app works better when run locally due to datacenter IP restrictions.")
+                st.info("💻 **To run locally:**")
+                st.code("""
+1. Download the code from GitHub
+2. Install: pip install streamlit yt-dlp
+3. Run: streamlit run app.py
+                """)
+                st.info("🌐 **Alternative**: Try using a VPN or different network if accessing from cloud.")
+            elif "getaddrinfo failed" in error_msg or "failed to resolve" in error_msg:
                 st.error("🌐 Network connection issue. Please check your internet connection and try again.")
-            elif "HTTP Error 403" in error_msg:
-                st.error("🚫 Access denied. The video might be private or region-blocked.")
-            elif "Video unavailable" in error_msg:
+            elif "video unavailable" in error_msg or "not available" in error_msg:
                 st.error("📹 Video is unavailable or has been removed.")
-            elif "Unsupported URL" in error_msg:
+            elif "unsupported url" in error_msg:
                 st.error("🔗 Unsupported URL format. Please check the link.")
             else:
-                st.error(f"❌ Download failed: {error_msg}")
+                st.error("❌ Download failed. Please try again or run locally for better results.")
             
             # Clear progress on error
             if 'progress_bar' in locals():

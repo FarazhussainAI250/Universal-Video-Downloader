@@ -714,7 +714,10 @@ if download_btn:
                 "fragment_retries": 3,
                 "extractor_retries": 3,
                 "http_chunk_size": 10485760,
-                "prefer_insecure": False
+                "prefer_insecure": False,
+                "http_headers": {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
             }
             with yt_dlp.YoutubeDL(ydl_info_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
@@ -744,7 +747,10 @@ if download_btn:
                     "extractor_retries": 3,
                     "http_chunk_size": 10485760,
                     "prefer_insecure": False,
-                    "geo_bypass": True
+                    "geo_bypass": True,
+                    "http_headers": {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    }
                 }
                 ext = ".mp4"
             else:
@@ -761,7 +767,10 @@ if download_btn:
                     "extractor_retries": 3,
                     "http_chunk_size": 10485760,
                     "prefer_insecure": False,
-                    "geo_bypass": True
+                    "geo_bypass": True,
+                    "http_headers": {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    }
                 }
                 ext = ".m4a"
 

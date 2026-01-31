@@ -1,0 +1,22 @@
+{
+  "name": "Universal Video Downloader",
+  "short_name": "VideoDownloader",
+  "description": "Download videos from TikTok, YouTube, Instagram, Facebook",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e1e2e",
+  "theme_color": "#4ecdc4",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjNGVjZGM0Ij4KICA8cGF0aCBkPSJNMTQsNkg2VjE0SDEwVjEwSDE0VjZNMTgsNlYxNEgxNFYxOEg2VjEwSDJWMThBMiwyIDAgMCwwIDQsMjBIMThBMiwyIDAgMCwwIDIwLDE4VjhBMiwyIDAgMCwwIDE4LDZaIi8+Cjwvc3ZnPg==",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjNGVjZGM0Ij4KICA8cGF0aCBkPSJNMTQsNkg2VjE0SDEwVjEwSDE0VjZNMTgsNlYxNEgxNFYxOEg2VjEwSDJWMThBMiwyIDAgMCwwIDQsMjBIMThBMiwyIDAgMCwwIDIwLDE4VjhBMiwyIDAgMCwwIDE4LDZaIi8+Cjwvc3ZnPg==",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

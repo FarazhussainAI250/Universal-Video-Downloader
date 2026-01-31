@@ -692,29 +692,40 @@ if download_btn:
             file_id = str(uuid.uuid4())
             base_path = os.path.join(DOWNLOAD_DIR, file_id)
 
-            # Get video info first with retry mechanism
-            ydl_info_opts = {
-                "quiet": True,
-                "socket_timeout": 60,
-                "retries": 10,
-                "fragment_retries": 10,
-                "extractor_retries": 5,
-                "http_chunk_size": 1048576,
-                "prefer_insecure": False,
-                "no_check_certificate": True,
-                "geo_bypass": True,
-                "http_headers": {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Accept-Language': 'en-us,en;q=0.5',
-                    'Accept-Encoding': 'gzip,deflate',
-                    'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
-                    'Keep-Alive': '300',
-                    'Connection': 'keep-alive'
+            # Try alternative approach for Streamlit Cloud
+            try:
+                # First try with minimal options
+                simple_opts = {
+                    "quiet": True,
+                    "no_warnings": True,
+                    "extract_flat": False
                 }
-            }
-            with yt_dlp.YoutubeDL(ydl_info_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
+                with yt_dlp.YoutubeDL(simple_opts) as ydl:
+                    info = ydl.extract_info(url, download=False)
+            except:
+                # Fallback with cloud-optimized settings
+                ydl_info_opts = {
+                    "quiet": True,
+                    "socket_timeout": 60,
+                    "retries": 10,
+                    "fragment_retries": 10,
+                    "extractor_retries": 5,
+                    "http_chunk_size": 1048576,
+                    "prefer_insecure": False,
+                    "no_check_certificate": True,
+                    "geo_bypass": True,
+                    "http_headers": {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language': 'en-us,en;q=0.5',
+                        'Accept-Encoding': 'gzip,deflate',
+                        'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+                        'Keep-Alive': '300',
+                        'Connection': 'keep-alive'
+                    }
+                }
+                with yt_dlp.YoutubeDL(ydl_info_opts) as ydl:
+                    info = ydl.extract_info(url, download=False)
 
             filesize = info.get("filesize") or info.get("filesize_approx")
 

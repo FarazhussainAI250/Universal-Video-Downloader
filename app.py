@@ -83,19 +83,18 @@ h1 {
 
 /* Input Styling */
 .stTextInput > div > div > input {
-    background: rgba(59, 130, 246, 0.3) !important;
-    border: 2px solid rgba(59, 130, 246, 0.5) !important;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 15px;
-    color: white !important;
+    color: white;
     font-size: 1.1rem;
     padding: 0.75rem 1rem;
     backdrop-filter: blur(10px);
 }
 
 .stTextInput > div > div > input:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4) !important;
-    background: rgba(59, 130, 246, 0.4) !important;
+    border-color: #4ecdc4;
+    box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.3);
 }
 
 /* Enhanced Selectbox Styling - Working Dropdown */
@@ -400,7 +399,7 @@ if theme:
     </style>
     """, unsafe_allow_html=True)
 else:
-    # Light mode - better visibility for download details and input field
+    # Light mode - better visibility for download details
     st.markdown("""
     <style>
     /* Light mode download progress styling */
@@ -413,26 +412,6 @@ else:
     .download-progress span {
         color: white !important;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
-    }
-    
-    /* Light mode input field styling */
-    .stTextInput > div > div > input {
-        background: rgba(59, 130, 246, 0.4) !important;
-        border: 2px solid rgba(59, 130, 246, 0.6) !important;
-        color: white !important;
-        font-weight: 500 !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-    }
-    
-    .stTextInput > div > div > input:focus {
-        background: rgba(59, 130, 246, 0.5) !important;
-        border-color: #2563eb !important;
-        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3) !important;
-    }
-    
-    .stTextInput > div > div > input::placeholder {
-        color: rgba(255, 255, 255, 0.8) !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -458,20 +437,6 @@ if st.sidebar.button("🗑️ Clear History"):
         json.dump([], f)
     st.sidebar.success("History cleared!")
     st.rerun()
-
-# ---------------- CLOUD NOTICE ----------------
-st.sidebar.markdown("""
----
-### 📝 **Note for Cloud Users**
-If you encounter access issues, this app works better when run locally due to datacenter IP restrictions.
-
-**Run Locally:**
-```bash
-pip install streamlit yt-dlp
-streamlit run app.py
-```
----
-""")
 
 # ---------------- MAIN UI ----------------
 st.markdown("""
@@ -584,11 +549,11 @@ else:
 
 # ---------------- HELPERS ----------------
 video_format_map = {
-    "Best": "best[height>=720]/best",
-    "1080p": "best[height>=1080]/best[height>=720]/best",
-    "720p": "best[height>=720]/best[height>=480]/best",
-    "480p": "best[height>=480]/best[height>=360]/best",
-    "360p": "best[height>=360]/best"
+    "Best": "best",
+    "1080p": "bestvideo[height<=1080]+bestaudio/best",
+    "720p": "bestvideo[height<=720]+bestaudio/best",
+    "480p": "bestvideo[height<=480]+bestaudio/best",
+    "360p": "bestvideo[height<=360]+bestaudio/best"
 }
 
 audio_quality_map = {
@@ -604,66 +569,37 @@ platform_domains = {
     "Facebook": ["facebook.com", "fb.watch"]
 }
 
-# Custom progress hook for yt-dlp with time estimation
-import time
-download_start_time = None
-
-# Format time function
-def format_time(seconds):
-    if seconds < 60:
-        return f"{int(seconds)}s"
-    elif seconds < 3600:
-        return f"{int(seconds//60)}m {int(seconds%60)}s"
-    else:
-        return f"{int(seconds//3600)}h {int((seconds%3600)//60)}m"
-
+# Custom progress hook for yt-dlp
 def progress_hook(d):
-    global download_start_time
-    
     if d['status'] == 'downloading':
-        if download_start_time is None:
-            download_start_time = time.time()
-        
         if 'total_bytes' in d:
             percent = d['downloaded_bytes'] / d['total_bytes'] * 100
-            total_bytes = d['total_bytes']
         elif 'total_bytes_estimate' in d:
             percent = d['downloaded_bytes'] / d['total_bytes_estimate'] * 100
-            total_bytes = d['total_bytes_estimate']
         else:
             percent = 0
-            total_bytes = 0
-        
-        # Calculate time estimates
-        elapsed_time = time.time() - download_start_time
-        if percent > 0 and elapsed_time > 0:
-            estimated_total_time = elapsed_time * (100 / percent)
-            remaining_time = estimated_total_time - elapsed_time
-        else:
-            remaining_time = 0
         
         # Update progress bar and status
         progress_bar.progress(min(int(percent), 99))
         
-        # Update status with detailed info including time
-        if 'speed' in d and d['speed'] and remaining_time > 0:
+        # Calculate remaining
+        remaining = 100 - percent
+        
+        # Update status with detailed info
+        if 'speed' in d and d['speed']:
             speed_mb = d['speed'] / (1024 * 1024)
-            downloaded_mb = d['downloaded_bytes'] / (1024 * 1024)
-            total_mb = total_bytes / (1024 * 1024) if total_bytes > 0 else 0
-            
             status_text.markdown(f"""
             <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 15px; backdrop-filter: blur(10px);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                     <span style="color: #4ecdc4; font-weight: 600;">⬇️ Downloading...</span>
                     <span style="color: white; font-weight: 600;">{percent:.1f}%</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: rgba(255,255,255,0.8); margin-bottom: 0.5rem;">
-                    <span>📊 {downloaded_mb:.1f} MB / {total_mb:.1f} MB</span>
-                    <span>🚀 {speed_mb:.1f} MB/s</span>
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: rgba(255,255,255,0.8);">
+                    <span>📊 Completed: {percent:.1f}%</span>
+                    <span>⏳ Remaining: {remaining:.1f}%</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: rgba(255,255,255,0.7);">
-                    <span>⏱️ Elapsed: {format_time(elapsed_time)}</span>
-                    <span style="color: #ff6b6b; font-weight: 600;">⏳ Remaining: {format_time(remaining_time)}</span>
+                <div style="margin-top: 0.5rem; font-size: 0.9rem; color: rgba(255,255,255,0.7);">
+                    <span>🚀 Speed: {speed_mb:.1f} MB/s</span>
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -674,17 +610,16 @@ def progress_hook(d):
                     <span style="color: #4ecdc4; font-weight: 600;">⬇️ Downloading...</span>
                     <span style="color: white; font-weight: 600;">{percent:.1f}%</span>
                 </div>
-                <div style="font-size: 0.9rem; color: rgba(255,255,255,0.8);">
-                    <span>⏱️ Calculating time...</span>
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: rgba(255,255,255,0.8);">
+                    <span>📊 Completed: {percent:.1f}%</span>
+                    <span>⏳ Remaining: {remaining:.1f}%</span>
                 </div>
             </div>
             """, unsafe_allow_html=True)
     
     elif d['status'] == 'finished':
         progress_bar.progress(100)
-        total_time = time.time() - download_start_time if download_start_time else 0
-        status_text.success(f"✅ Download completed in {format_time(total_time) if total_time > 0 else 'unknown time'}!")
-        download_start_time = None
+        status_text.success("✅ Download completed successfully!")
 
 def valid_url(link, platform):
     return any(d in link for d in platform_domains[platform])
@@ -706,112 +641,46 @@ if download_btn:
             file_id = str(uuid.uuid4())
             base_path = os.path.join(DOWNLOAD_DIR, file_id)
 
-            # Try alternative approach for Streamlit Cloud
-            try:
-                # First try with minimal options
-                simple_opts = {
-                    "quiet": True,
-                    "no_warnings": True,
-                    "extract_flat": False
-                }
-                with yt_dlp.YoutubeDL(simple_opts) as ydl:
-                    info = ydl.extract_info(url, download=False)
-            except:
-                # Fallback with cloud-optimized settings
-                ydl_info_opts = {
-                    "quiet": True,
-                    "socket_timeout": 60,
-                    "retries": 10,
-                    "fragment_retries": 10,
-                    "extractor_retries": 5,
-                    "http_chunk_size": 1048576,
-                    "prefer_insecure": False,
-                    "no_check_certificate": True,
-                    "geo_bypass": True,
-                    "http_headers": {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                        'Accept-Language': 'en-us,en;q=0.5',
-                        'Accept-Encoding': 'gzip,deflate',
-                        'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
-                        'Keep-Alive': '300',
-                        'Connection': 'keep-alive'
-                    }
-                }
-                with yt_dlp.YoutubeDL(ydl_info_opts) as ydl:
-                    info = ydl.extract_info(url, download=False)
+            # Get video info first
+            ydl_info_opts = {"quiet": True}
+            with yt_dlp.YoutubeDL(ydl_info_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
 
             filesize = info.get("filesize") or info.get("filesize_approx")
 
             if filesize:
-                size_mb = round(filesize / (1024*1024), 2)
-                st.info(f"📦 Estimated Size: {size_mb} MB")
+                st.info(f"📦 Estimated Size: {round(filesize / (1024*1024), 2)} MB")
 
             # Setup download options with progress hook
             if download_type == "Video":
-                # Use improved format selector for HD quality
-                format_selector = video_format_map[video_quality]
+                # Use flexible format selector that works with TikTok
+                if video_quality == "Best":
+                    format_selector = "best"
+                else:
+                    # More flexible format selection for TikTok compatibility
+                    height = video_quality[:-1] if video_quality != "Best" else "1080"
+                    format_selector = f"best[height<={height}]/best"
                 
                 ydl_opts = {
                     "outtmpl": f"{base_path}.%(ext)s",
                     "format": format_selector,
                     "progress_hooks": [progress_hook],
                     "quiet": True,
-                    "no_warnings": True,
-                    "writesubtitles": False,
-                    "writeautomaticsub": False,
-                    "socket_timeout": 60,
-                    "retries": 15,
-                    "fragment_retries": 15,
-                    "extractor_retries": 5,
-                    "http_chunk_size": 1048576,
-                    "prefer_insecure": False,
-                    "geo_bypass": True,
-                    "no_check_certificate": True,
-                    "continuedl": True,
-                    "http_headers": {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                        'Accept-Language': 'en-us,en;q=0.5',
-                        'Accept-Encoding': 'gzip,deflate',
-                        'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
-                        'Keep-Alive': '300',
-                        'Connection': 'keep-alive'
-                    }
+                    "no_warnings": True
                 }
                 ext = ".mp4"
             else:
-                # Audio download without FFmpeg post-processing
                 ydl_opts = {
                     "outtmpl": f"{base_path}.%(ext)s",
-                    "format": "bestaudio[ext=m4a]/bestaudio/best",
+                    "format": "bestaudio/best",
                     "progress_hooks": [progress_hook],
                     "quiet": True,
-                    "no_warnings": True,
-                    "socket_timeout": 60,
-                    "retries": 15,
-                    "fragment_retries": 15,
-                    "extractor_retries": 5,
-                    "http_chunk_size": 1048576,
-                    "prefer_insecure": False,
-                    "geo_bypass": True,
-                    "no_check_certificate": True,
-                    "continuedl": True,
-                    "http_headers": {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                        'Accept-Language': 'en-us,en;q=0.5',
-                        'Accept-Encoding': 'gzip,deflate',
-                        'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
-                        'Keep-Alive': '300',
-                        'Connection': 'keep-alive'
-                    }
+                    "no_warnings": True
                 }
                 ext = ".m4a"
 
             # Start download with real-time progress
             status_text.info("⬇️ Starting download...")
-            download_start_time = None  # Reset timer
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([url])
@@ -865,34 +734,8 @@ if download_btn:
                 st.error("❌ File missing after download")
 
         except Exception as e:
-            error_msg = str(e).lower()
-            
-            # Handle Streamlit Cloud IP blocking specifically
-            if ("http error 403" in error_msg or "access denied" in error_msg or 
-                "forbidden" in error_msg or "blocked" in error_msg):
-                st.error("🚫 **Streamlit Cloud IP Blocked**")
-                st.warning("📝 **Solution**: This app works better when run locally due to datacenter IP restrictions.")
-                st.info("💻 **To run locally:**")
-                st.code("""
-1. Download the code from GitHub
-2. Install: pip install streamlit yt-dlp
-3. Run: streamlit run app.py
-                """)
-                st.info("🌐 **Alternative**: Try using a VPN or different network if accessing from cloud.")
-            elif "getaddrinfo failed" in error_msg or "failed to resolve" in error_msg:
-                st.error("🌐 Network connection issue. Please check your internet connection and try again.")
-            elif "video unavailable" in error_msg or "not available" in error_msg:
-                st.error("📹 Video is unavailable or has been removed.")
-            elif "unsupported url" in error_msg:
-                st.error("🔗 Unsupported URL format. Please check the link.")
-            else:
-                st.error("❌ Download failed. Please try again or run locally for better results.")
-            
-            # Clear progress on error
-            if 'progress_bar' in locals():
-                progress_bar.empty()
-            if 'status_text' in locals():
-                status_text.empty()
+            st.error("❌ Error occurred")
+            st.code(str(e))
 
 
 
